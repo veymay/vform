@@ -17,52 +17,54 @@ changeBtn.addEventListener('click', () => {
   signIn.classList.toggle('active')
   signUp.classList.toggle('active')
 })
-// Checking Form Validate
-function checkInp(btn,inp) {
-  btn.addEventListener('click', (e) => {
-    e.preventDefault()
-      if ( inp.value.length > 3) {
-        inp.classList.remove('error')
-      } else {
-        inp.classList.add('error')
-      }
-  })
-  inp.addEventListener('keydown', () => {
-    inp.value.length>3?inp.classList.remove('error'):inp.classList.add('error')
-  })
-}
 
-checkInp(signInBtn,signInEmail)
-checkInp(signInBtn, signInPass)
-checkInp(signUpBtn,signUpName)
-checkInp(signUpBtn,signUpEmail)
-checkInp(signUpBtn, signUpPass)
-
-// Signup User
-function signUpUser() {
-  if (!signUpName.classList.contains('error') && !signUpEmail.classList.contains('error') && !signUpPass.classList.contains('error')) {
-    users.push({ name: signUpName.value, email: signUpEmail.value, pass: signUpPass.value})
-    console.log(users);
-    localStorage.setItem('users',JSON.stringify(users))
-  } else {
-    console.log('Error');
+function checkInp(element) {
+  let elementAtt = element.getAttribute('type')
+  if (elementAtt == 'text') {
+    element.setAttribute('required','')
+    element.value.length > 5 ? element.style.outlineColor = 'var(--primary)' : element.style.outlineColor = 'var(--alert)'
+    return true
+  } else if (elementAtt == 'email') {
+    element.setAttribute('required', '')
+    if (element.value.match(/^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/)) {
+      element.style.outlineColor = 'var(--primary)'
+      return true
+    } else {
+      element.style.outlineColor = 'var(--alert)'
+      return false
+    }
+  } else if (elementAtt == 'password') {
+    element.setAttribute('required', '')
+    if (element.value.match(/^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,16}$/)) {
+      element.style.outlineColor = 'var(--primary)'
+      return true
+    } else {
+      element.style.outlineColor = 'var(--alert)'
+      return false
+    }
   }
 }
-
-signUpBtn.addEventListener('click',()=> {
-  signUpUser()
+signInBtn.addEventListener('click', (e) => {
+  e.preventDefault()
+  let checkStatus = false
+  let firstName
+  if (checkInp(signInEmail) && checkInp(signInPass)) {
+    users.forEach(data => {
+      if (signInEmail.value == data.email && signInPass.value == data.pass) {
+        checkStatus = true
+        firstName = data.name
+      }
+    });
+    checkStatus?document.write(`Salom ${firstName}. Saytimizga Xush Kelibsiz`):console.log('Xatolik')
+  }
 })
-
-// Signin User
-function signInUser() {
-  users.forEach(data => {
-    if (data.email==signInEmail.value && data.pass==signInPass.value) {
-      window.location.replace('https://sayt.uz')
-    } else {
-      alert('error')
-    }
-  })
-}
-signInBtn.addEventListener('click',()=> {
-  signInUser()
+signUpBtn.addEventListener('click', (e) => {
+  e.preventDefault()
+  if (checkInp(signUpName) && checkInp(signUpEmail) && checkInp(signUpPass)) {
+    users.push({name: signUpName.value,email: signUpEmail.value,pass: signUpPass.value})
+    localStorage.setItem('users', JSON.stringify(users))
+    alert('Success')
+  } else {
+    alert('Error')
+  }
 })
